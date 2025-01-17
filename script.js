@@ -92,7 +92,7 @@ function updateCart(produktsInCart, cart, productName) {
   }
 }
 
-// Обработчики для продуктов
+// Обработчики для продуктов (dragstart и touchstart)
 products.forEach(function (elem) {
   elem.addEventListener('dragstart', handleDragStart);
   elem.addEventListener('touchstart', handleDragStart);
@@ -131,7 +131,7 @@ function togglePulse() {
 
 setInterval(togglePulse, 2000);
 
-// Обработчики для перемещения товара
+// Обработчики для перемещения товара для touch-событий
 products.forEach(function (elem) {
   elem.addEventListener('touchmove', handleTouchMove);
   elem.addEventListener('touchend', handleTouchEnd);
