@@ -14,84 +14,47 @@ const produktsInCart = {
 
 let current; // Текущий перетаскиваемый элемент
 let touchOffset = { x: 0, y: 0 }; // Смещение при касании
+let count = 0;
+let zIndex = 1;
 
-// Инициализация перетаскивания мышью
-products.forEach(function (elem) {
-  elem.addEventListener('dragstart', function () {
-    current = this;
-  });
-});
+// Инициализация перетаскивания мышью и тачем
+function startDrag(e) {
+  current = this;
+  const touch = e.touches ? e.touches[0] : e; // Проверяем, это тач или мышь
+  const rect = current.getBoundingClientRect();
+  touchOffset = {
+    x: touch.clientX - rect.left, // Смещение по оси X
+    y: touch.clientY - rect.top   // Смещение по оси Y
+  };
 
-cart.addEventListener('dragover', function (e) {
-  e.preventDefault();
-});
-
-cart.addEventListener('drop', function () {
-  handleDrop();
-});
-
-// Добавляем поддержку тач-событий
-products.forEach(function (elem) {
-  elem.addEventListener('touchstart', function (e) {
-    current = this;
-    const touch = e.touches[0];
-    const rect = current.getBoundingClientRect();
-    touchOffset = {
-      x: touch.clientX - rect.left,
-      y: touch.clientY - rect.top
-    };
-
-    current.style.position = 'absolute';
-    current.style.zIndex = 1000;
-    moveAt(touch.clientX, touch.clientY);
-  });
-
-  elem.addEventListener('touchmove', function (e) {
-    e.preventDefault(); // Предотвращаем скроллинг страницы при движении
-    const touch = e.touches[0];
-    moveAt(touch.clientX, touch.clientY);
-  });
-
-  elem.addEventListener('touchend', function () {
-    handleDrop();
-  });
-});
+  current.style.position = 'absolute';
+  current.style.zIndex = 1000;
+  moveAt(touch.clientX, touch.clientY);
+}
 
 function moveAt(x, y) {
   if (current) {
-    current.style.left = x - touchOffset.x + 'px';
-    current.style.top = y - touchOffset.y + 'px';
+    current.style.left = x - touchOffset.x + 'px'; // Смещение по X
+    current.style.top = y - touchOffset.y + 'px';  // Смещение по Y
   }
 }
 
-function isOverCart(touchX, touchY, cart) {
-  const rect = cart.getBoundingClientRect();
-  return (
-    touchX >= rect.left &&
-    touchX <= rect.right &&
-    touchY >= rect.top &&
-    touchY <= rect.bottom
-  );
-}
-
-function handleDrop() {
+function endDrag() {
   if (!current) return;
 
   const productName = current.className.split(' ')[1];
   console.log(productName);
 
-  const touch = event.changedTouches ? event.changedTouches[0] : null;
-  if (touch) {
-    const touchX = touch.clientX;
-    const touchY = touch.clientY;
+  const touch = event.changedTouches ? event.changedTouches[0] : event;
+  const touchX = touch.clientX;
+  const touchY = touch.clientY;
 
-    if (isOverCart(touchX, touchY, cartOne)) {
-      updateCart(produktsInCart.cartOne, cartOne, productName);
-    } else if (isOverCart(touchX, touchY, cartTwo)) {
-      updateCart(produktsInCart.cartTwo, cartTwo, productName);
-    } else if (isOverCart(touchX, touchY, cartThree)) {
-      updateCart(produktsInCart.cartThree, cartThree, productName);
-    }
+  if (isOverCart(touchX, touchY, cartOne)) {
+    updateCart(produktsInCart.cartOne, cartOne, productName);
+  } else if (isOverCart(touchX, touchY, cartTwo)) {
+    updateCart(produktsInCart.cartTwo, cartTwo, productName);
+  } else if (isOverCart(touchX, touchY, cartThree)) {
+    updateCart(produktsInCart.cartThree, cartThree, productName);
   }
 
   // Сбрасываем текущий элемент в исходное состояние
@@ -105,8 +68,15 @@ function handleDrop() {
   buttonPay.style.display = count >= 3 ? 'flex' : 'none';
 }
 
-let count = 0;
-let zIndex = 1;
+function isOverCart(touchX, touchY, cart) {
+  const rect = cart.getBoundingClientRect();
+  return (
+    touchX >= rect.left &&
+    touchX <= rect.right &&
+    touchY >= rect.top &&
+    touchY <= rect.bottom
+  );
+}
 
 function updateCart(produktsInCart, cart, productName) {
   if (produktsInCart.includes(productName)) {
@@ -116,6 +86,40 @@ function updateCart(produktsInCart, cart, productName) {
     console.log(`Count: ${count}`);
   }
 }
+
+// Обработчики для тач-событий и мышиных событий
+products.forEach(function (elem) {
+  elem.addEventListener('dragstart', function () {
+    current = this;
+  });
+
+  // Обработчик тач-события
+  elem.addEventListener('touchstart', startDrag);
+  elem.addEventListener('touchmove', function (e) {
+    e.preventDefault(); // Предотвращаем скроллинг страницы
+    const touch = e.touches[0];
+    moveAt(touch.clientX, touch.clientY);
+  });
+  elem.addEventListener('touchend', endDrag);
+
+  // Обработчик для мышиных событий
+  elem.addEventListener('mousedown', startDrag);
+  elem.addEventListener('mousemove', function (e) {
+    if (current) {
+      moveAt(e.clientX, e.clientY);
+    }
+  });
+  elem.addEventListener('mouseup', endDrag);
+  elem.addEventListener('mouseleave', endDrag); // Для мыши, если выходим за пределы экрана
+});
+
+cart.addEventListener('dragover', function (e) {
+  e.preventDefault(); // Нужно для поддержки drop-события
+});
+
+cart.addEventListener('drop', function () {
+  endDrag(); // Вызываем drop-логику
+});
 
 // Кнопка "Оплатить корзину"
 buttonPay.addEventListener('click', () => {
