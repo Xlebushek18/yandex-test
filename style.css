@@ -1,0 +1,260 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 300px;
+    height: 600px;
+    position: relative;
+}
+
+.wrapper {
+    width: 212px;
+    margin: 30px auto 0;
+    height: 570px;
+  }
+
+.shelf-one {
+    position: relative;
+    top: -310px;
+    left: -75px;
+    display: flex;
+    align-items: end;
+}
+
+.sap {
+    position: absolute;
+    left: 100px;
+}
+  
+.milk {
+    position: absolute;
+    left: 140px;
+}
+  
+.cake {
+    position: absolute;
+    left: 180px;
+}
+  
+.cheese {
+    position: absolute;
+    left: 230px;
+}
+
+.shelf-two {
+    position: relative;
+    top: -215px;
+    left: -75px;
+    display: flex;
+    align-items: end;
+}
+  
+.meat {
+    position: absolute;
+      left: 80px;
+}
+  
+.chicken {
+    position: absolute;
+    left: 140px;
+}
+  
+.chips {
+    position: absolute;
+    left: 200px;
+}
+
+.shelf-three {
+    position: relative;
+    top: -120px;
+    left: -75px;
+    display: flex;
+    align-items: end;
+}
+
+.pineapple {
+    position: absolute;
+    left: 90px;
+}
+  
+.bananas {
+    position: absolute;
+    left: 135px;
+}
+
+.apple {
+    position: absolute;
+    left: 185px;
+}
+
+.salads {
+    position: absolute;
+    left: 220px;
+}
+
+.cart-one {
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: end;
+    position: relative;
+    top: -120px;
+    left: 40px;
+    z-index: 5;
+}
+
+.cart-two {
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: end;
+    position: relative;
+    top: -320px;
+    left: 40px;
+    z-index: 4;
+}
+
+.cart-three {
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: end;
+    position: relative;
+    top: -520px;
+    left: 40px;
+    z-index: 3;
+}
+
+.cart{
+    position: relative;
+    top: -700px;
+    left: -30px;
+    z-index: 100;
+}
+
+.cart-one .sap {
+    display: block;
+    position: static;
+  }
+
+.cart-one .milk {
+    display: block;
+    position: static;
+}
+
+.cart-one .cake {
+    display: block;
+    position: static;
+}
+
+.cart-one .cheese {
+    display: block;
+    position: static;
+}
+
+.cart-two .meat {
+    display: block;
+    position: static;
+}
+
+.cart-two .chicken {
+    display: block;
+    position: static;
+}
+
+.cart-two .chips {
+    display: block;
+    position: static;
+}
+
+.cart-three .pineapple {
+    display: block;
+    position: static;
+}
+
+.cart-three .bananas {
+    display: block;
+    position: static;
+}
+
+.cart-three .apple {
+    display: block;
+    position: static;
+}
+
+.cart-three .salads {
+    display: block;
+    position: static;
+}
+
+.cart-one .product:nth-child(2) {
+    transform: translatex(-10px);
+}
+
+.cart-one .product:nth-child(3) {
+    transform: translatex(-20px);
+}
+
+.cart-one .product:nth-child(4) {
+    transform: translatex(-30px);
+}
+
+.cart-two .product:nth-child(2) {
+    transform: translatex(-10px);
+}
+
+.cart-two .product:nth-child(3) {
+    transform: translatex(-20px);
+}
+
+.cart-two .product:nth-child(4) {
+    transform: translatex(-30px);
+}
+  
+.cart-three .product:nth-child(2) {
+    transform: translatex(-10px);
+}
+  
+.cart-three .product:nth-child(3) {
+    transform: translatex(-20px);
+}
+
+.cart-three .product:nth-child(4) {
+    transform: translatex(-30px);
+}
+
+
+.button-pay {
+    width: 174px;
+    height: 56px;
+    background-color: #FCE000;
+    border: #FCE000;
+    border-radius: 16px;
+    font-family: YS Text, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 17px;
+    letter-spacing: -0.5%;
+    position: absolute;
+    bottom: 50px;
+    left: 65px;
+    z-index: 200;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 1s ease, opacity 1s ease-in-out;
+    opacity: 0;
+}
+
+.button-pay-visible {
+    opacity: 1;
+}
+
+.button-pay:hover {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
+}
+
+.button-pay:active {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 3px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(1px);
+}
