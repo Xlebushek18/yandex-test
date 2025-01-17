@@ -49,6 +49,7 @@ function endDrag() {
   const touchX = touch.clientX;
   const touchY = touch.clientY;
 
+  // Переносим товар в нужную корзину
   if (isOverCart(touchX, touchY, cartOne)) {
     updateCart(produktsInCart.cartOne, cartOne, productName);
   } else if (isOverCart(touchX, touchY, cartTwo)) {
