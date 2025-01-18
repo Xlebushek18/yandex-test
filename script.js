@@ -9,71 +9,93 @@ const cart = document.querySelector('.cart');
 const produktsInCart = {
   cartOne: ['sap', 'milk', 'cake', 'cheese'],
   cartTwo: ['meat', 'chicken', 'chips'],
-  cartThree: ['pineapple', 'bananas', 'apple', 'salads'],
+  cartThree: ['pineapple', 'bananas', 'apple', 'salads']
 };
 
 let current;
-let offsetX, offsetY, startX, startY;
-let isTouchMove = false;
+let startX, startY, offsetX, offsetY;
 let count = 0; // Переменная для отслеживания количества товаров в корзине
+let zIndex = 1; // Индекс для управления слоями перетаскиваемых элементов
 
 // Функция обновления корзины
 function updateCart(produktsInCart, cart, productName) {
-  if (produktsInCart.includes(productName) && !cart.querySelector(`.${productName}`)) {
+  if (produktsInCart.includes(productName)) {
     cart.appendChild(current);
+    cart.style.zIndex = zIndex++;
     count += 1;
+    console.log(count);
   }
 }
 
-// Проверка попадания в корзину
+// Функция для проверки, попал ли объект в корзину
 function isInsideCart(x, y, cartRect) {
   return x > cartRect.left && x < cartRect.right && y > cartRect.top && y < cartRect.bottom;
 }
 
-// Обработчик начала перемещения
+// Обработчик начала перетаскивания
 function handleDragStart(e) {
   if (e.type === 'touchstart') {
+    // Для touch-событий
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
     current = e.target;
-
+    
     const rect = current.getBoundingClientRect();
     offsetX = startX - rect.left;
     offsetY = startY - rect.top;
-
+    
     current.style.position = 'absolute';
-    current.style.zIndex = 1000;
+    current.style.zIndex = zIndex++;
   } else {
+    // Для drag-событий на ПК
     current = this;
   }
 }
 
-// Обработчик перемещения для touch-событий
-function handleTouchMove(e) {
-  if (!current || !e.touches) return;
-  isTouchMove = true;
+// Обработчик перемещения объекта (для touch и drag)
+function handleMove(e) {
+  if (!current) return;
 
-  const moveX = e.touches[0].clientX;
-  const moveY = e.touches[0].clientY;
+  let moveX, moveY;
 
-  // Перемещаем элемент
+  if (e.type === 'touchmove') {
+    // Для touch-событий
+    moveX = e.touches[0].clientX;
+    moveY = e.touches[0].clientY;
+  } else {
+    // Для drag-событий на ПК
+    moveX = e.clientX;
+    moveY = e.clientY;
+  }
+
+  // Перемещение объекта по экрану
   current.style.left = `${moveX - offsetX}px`;
   current.style.top = `${moveY - offsetY}px`;
 }
 
-// Обработчик окончания перемещения для touch-событий
-function handleTouchEnd(e) {
-  if (!isTouchMove) return;
+// Обработчик окончания перетаскивания
+function handleEnd(e) {
+  if (!current) return;
 
-  const endX = e.changedTouches[0].clientX;
-  const endY = e.changedTouches[0].clientY;
+  let endX, endY;
+
+  if (e.type === 'touchend') {
+    // Для touch-событий
+    endX = e.changedTouches[0].clientX;
+    endY = e.changedTouches[0].clientY;
+  } else {
+    // Для drag-событий на ПК
+    endX = e.clientX;
+    endY = e.clientY;
+  }
 
   const cartRects = [
     { cart: cartOne, rect: cartOne.getBoundingClientRect() },
     { cart: cartTwo, rect: cartTwo.getBoundingClientRect() },
-    { cart: cartThree, rect: cartThree.getBoundingClientRect() },
+    { cart: cartThree, rect: cartThree.getBoundingClientRect() }
   ];
 
+  // Проверка попадания в корзину
   cartRects.forEach(({ cart, rect }) => {
     if (isInsideCart(endX, endY, rect)) {
       const productName = current.className.split(' ')[1];
@@ -81,33 +103,32 @@ function handleTouchEnd(e) {
     }
   });
 
+  // Сброс позиции объекта
   current.style.position = 'static';
   current.style.left = '';
   current.style.top = '';
-  isTouchMove = false;
 
+  // Показ или скрытие кнопки "Оплатить"
   buttonPay.style.display = count >= 3 ? 'flex' : 'none';
 }
 
-// Добавление обработчиков для продуктов
+// Обработчики для продуктов
 products.forEach(function (elem) {
-  elem.addEventListener('dragstart', handleDragStart); // Для drag событий на десктопах
-  elem.addEventListener('touchstart', handleDragStart); // Для touch событий на мобильных
-  elem.addEventListener('dragend', handleTouchEnd); // Для drag событий на десктопах
-  elem.addEventListener('touchend', handleTouchEnd); // Для touch событий на мобильных
-  elem.addEventListener('touchmove', handleTouchMove); // Для touch событий на мобильных
-  elem.addEventListener('drag', handleTouchMove); // Для drag событий на десктопах
+  elem.addEventListener('dragstart', handleDragStart); // Для ПК (drag)
+  elem.addEventListener('touchstart', handleDragStart); // Для мобильных устройств (touch)
+  elem.addEventListener('dragend', handleEnd); // Для ПК (drag)
+  elem.addEventListener('touchend', handleEnd); // Для мобильных устройств (touch)
+  elem.addEventListener('touchmove', handleMove); // Для мобильных устройств (touch)
+  elem.addEventListener('drag', handleMove); // Для ПК (drag)
 });
 
-// Обработчики для корзины
+// Обработчик для корзины (dragover для drop)
 cart.addEventListener('dragover', function (e) {
   e.preventDefault(); // Чтобы событие drop сработало
 });
 
-cart.addEventListener('drop', function (e) {
-  e.preventDefault();
+cart.addEventListener('drop', function () {
   if (!current) return;
-
   const productName = current.className.split(' ')[1];
   updateCart(produktsInCart.cartOne, cartOne, productName);
   updateCart(produktsInCart.cartTwo, cartTwo, productName);
