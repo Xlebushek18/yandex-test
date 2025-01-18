@@ -12,10 +12,10 @@ const produktsInCart = {
   cartThree: ['pineapple', 'bananas', 'apple', 'salads'],
 };
 
-let current; // текущий перемещаемый элемент
-let offsetX, offsetY, startX, startY; // координаты касания
-let isTouchMove = false; // флаг движения элемента
-let count = 0; // для подсчета количества товаров в корзине
+let current;
+let offsetX, offsetY, startX, startY;
+let isTouchMove = false;
+let count = 0; // Переменная для отслеживания количества товаров в корзине
 
 // Функция обновления корзины
 function updateCart(produktsInCart, cart, productName) {
@@ -25,7 +25,7 @@ function updateCart(produktsInCart, cart, productName) {
   }
 }
 
-// Проверка попадания элемента в корзину
+// Проверка попадания в корзину
 function isInsideCart(x, y, cartRect) {
   return x > cartRect.left && x < cartRect.right && y > cartRect.top && y < cartRect.bottom;
 }
@@ -35,46 +35,45 @@ function handleDragStart(e) {
   if (e.type === 'touchstart') {
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
+    current = e.target;
 
-    current = e.target; // текущий перетаскиваемый элемент
     const rect = current.getBoundingClientRect();
-
     offsetX = startX - rect.left;
     offsetY = startY - rect.top;
 
     current.style.position = 'absolute';
     current.style.zIndex = 1000;
-  } else if (e.type === 'dragstart') {
+  } else {
     current = this;
   }
 }
 
-// Обработчик перемещения
+// Обработчик перемещения для touch-событий
 function handleTouchMove(e) {
   if (!current || !e.touches) return;
-
   isTouchMove = true;
 
   const moveX = e.touches[0].clientX;
   const moveY = e.touches[0].clientY;
 
-  // Перемещаем элемент по экрану
+  // Перемещаем элемент
   current.style.left = `${moveX - offsetX}px`;
   current.style.top = `${moveY - offsetY}px`;
 }
 
-function handleDragEnd(e) {
+// Обработчик окончания перемещения для touch-событий
+function handleTouchEnd(e) {
+  if (!isTouchMove) return;
+
+  const endX = e.changedTouches[0].clientX;
+  const endY = e.changedTouches[0].clientY;
+
   const cartRects = [
     { cart: cartOne, rect: cartOne.getBoundingClientRect() },
     { cart: cartTwo, rect: cartTwo.getBoundingClientRect() },
     { cart: cartThree, rect: cartThree.getBoundingClientRect() },
   ];
 
-  // Координаты конца касания
-  const endX = e.type === 'touchend' ? e.changedTouches[0].clientX : e.clientX;
-  const endY = e.type === 'touchend' ? e.changedTouches[0].clientY : e.clientY;
-
-  // Проверяем, попал ли элемент в одну из корзин
   cartRects.forEach(({ cart, rect }) => {
     if (isInsideCart(endX, endY, rect)) {
       const productName = current.className.split(' ')[1];
@@ -82,29 +81,30 @@ function handleDragEnd(e) {
     }
   });
 
-  // Сбрасываем положение элемента
+  current.style.position = 'static';
   current.style.left = '';
   current.style.top = '';
-  current.style.position = 'static';
-
   isTouchMove = false;
 
-  // Обновляем видимость кнопки "Оплатить"
   buttonPay.style.display = count >= 3 ? 'flex' : 'none';
 }
 
-// Привязываем обработчики для всех продуктов
-products.forEach((product) => {
-  product.addEventListener('dragstart', handleDragStart);
-  product.addEventListener('dragend', handleDragEnd);
-  product.addEventListener('touchstart', handleDragStart);
-  product.addEventListener('touchmove', handleTouchMove);
-  product.addEventListener('touchend', handleDragEnd);
+// Добавление обработчиков для продуктов
+products.forEach(function (elem) {
+  elem.addEventListener('dragstart', handleDragStart); // Для drag событий на десктопах
+  elem.addEventListener('touchstart', handleDragStart); // Для touch событий на мобильных
+  elem.addEventListener('dragend', handleTouchEnd); // Для drag событий на десктопах
+  elem.addEventListener('touchend', handleTouchEnd); // Для touch событий на мобильных
+  elem.addEventListener('touchmove', handleTouchMove); // Для touch событий на мобильных
+  elem.addEventListener('drag', handleTouchMove); // Для drag событий на десктопах
 });
 
-// Настраиваем обработчик для корзины
-cart.addEventListener('dragover', (e) => e.preventDefault());
-cart.addEventListener('drop', (e) => {
+// Обработчики для корзины
+cart.addEventListener('dragover', function (e) {
+  e.preventDefault(); // Чтобы событие drop сработало
+});
+
+cart.addEventListener('drop', function (e) {
   e.preventDefault();
   if (!current) return;
 
@@ -116,13 +116,14 @@ cart.addEventListener('drop', (e) => {
   buttonPay.style.display = count >= 3 ? 'flex' : 'none';
 });
 
-// Обработчик для кнопки "Оплатить"
+// Кнопка "Оплатить"
 buttonPay.addEventListener('click', () => {
   window.location.href = 'https://lavka.yandex.ru/';
 });
 
-// Пульсация кнопки "Оплатить"
+// Функция для пульсации кнопки
 function togglePulse() {
   buttonPay.classList.toggle('pulsate');
 }
+
 setInterval(togglePulse, 2000);
