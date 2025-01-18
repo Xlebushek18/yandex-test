@@ -12,17 +12,16 @@ const produktsInCart = {
   cartThree: ['pineapple', 'bananas', 'apple', 'salads']
 };
 
-let current; // Текущий перетаскиваемый элемент
-let offsetX = 0, offsetY = 0; // Смещения для тача
-let isTouching = false; // Флаг для определения touch-событий
+let current;
+let offsetX = 0, offsetY = 0;
+let isTouching = false;
 
 products.forEach(function (elem) {
-  // Для мыши: начало перетаскивания
+
   elem.addEventListener('dragstart', function () {
     current = this;
   });
 
-  // Для тач-событий: начало переноса
   elem.addEventListener('touchstart', function (e) {
     isTouching = true;
     current = this;
@@ -31,29 +30,23 @@ products.forEach(function (elem) {
     offsetX = e.touches[0].clientX - rect.left;
     offsetY = e.touches[0].clientY - rect.top;
 
-    // Устанавливаем абсолютное позиционирование
     current.style.position = 'absolute';
     current.style.zIndex = 1000;
 
-    // Приводим элемент к точке касания
     moveElement(current, e.touches[0].clientX, e.touches[0].clientY);
   });
 
-  // Для тач-событий: перемещение
   elem.addEventListener('touchmove', function (e) {
     if (!isTouching || !current) return;
-    e.preventDefault(); // Предотвращаем прокрутку экрана
+    e.preventDefault();
     moveElement(current, e.touches[0].clientX, e.touches[0].clientY);
   });
 
-  // Для тач-событий: завершение переноса
   elem.addEventListener('touchend', function () {
     if (!current) return;
 
-    // Проверяем, попал ли элемент в корзину
     checkDrop(current);
 
-    // Возвращаем исходное состояние
     current.style.position = 'static';
     current.style.left = '';
     current.style.top = '';
@@ -63,13 +56,11 @@ products.forEach(function (elem) {
   });
 });
 
-// Перемещение элемента к указанным координатам
 function moveElement(element, x, y) {
   element.style.left = `${x - offsetX}px`;
   element.style.top = `${y - offsetY}px`;
 }
 
-// Проверка, попал ли элемент в корзину
 function checkDrop(element) {
   const rects = [
     { cart: cartOne, products: produktsInCart.cartOne },
@@ -96,7 +87,6 @@ function checkDrop(element) {
   });
 }
 
-// Обновление состояния корзины
 function updateCartVisuals() {
   let totalItems = 0;
   [cartOne, cartTwo, cartThree].forEach(cart => {
@@ -106,7 +96,6 @@ function updateCartVisuals() {
   buttonPay.style.display = totalItems >= 3 ? 'flex' : 'none';
 }
 
-// Для мыши: дроп объекта
 cart.addEventListener('dragover', function (e) {
   e.preventDefault();
 });
@@ -126,7 +115,6 @@ cart.addEventListener('drop', function () {
   updateCartVisuals();
 });
 
-// Кнопка "Оплатить"
 buttonPay.addEventListener('click', () => {
   window.location.href = 'https://lavka.yandex.ru/';
 });
